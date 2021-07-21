@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "example-font",
+  "version": "1.0.0",
+
+  "name": "Font Example",
+  "description": "Custom Font TTF/OTF for Minecraft 1.17",
+  "authors": [
+    "superblaubeere27",
+    "SprayD"
+  ],
+  "contact": {
+  },
+  "license": "LGPL-3.0",
+  "icon": "assets/example/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "org.spray.example.Example"
+    ]
+  },
+  "mixins": [
+  ],
+
+  "depends": {
+    "java": ">=16",
+    "minecraft": ">=1.17.1"
+  }
+}
