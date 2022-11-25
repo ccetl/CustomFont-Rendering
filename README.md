@@ -18,7 +18,3 @@ HudRenderCallback.EVENT.register((matrices, tickDelta) -> {
 			new Color(113, 152, 184).getRGB());
 });
 ```
-
-## Result
-
-![Just a Font](https://whyuleet.ru/upload-images/font-result.png "Font Example")
