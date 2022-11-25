@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "id": "example-font",
-  "version": "1.0.0",
+  "version": "1.0.2",
 
   "name": "Font Example",
-  "description": "Custom Font TTF/OTF for Minecraft 1.17",
+  "description": "Custom Font TTF/OTF for Minecraft 1.19",
   "authors": [
     "superblaubeere27",
     "SprayD"
@@ -24,6 +24,8 @@
 
   "depends": {
     "java": ">=16",
-    "minecraft": ">=1.17.1"
+    "fabricloader": ">=0.14.10",
+    "fabric": "*",
+    "minecraft": "1.19.2"
   }
 }

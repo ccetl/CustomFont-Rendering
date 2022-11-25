@@ -22,7 +22,6 @@ import net.minecraft.client.util.math.MatrixStack;
 /**
  * @author superblaubeere27
  * @ported sprayD
- * @ported ccetl
  */
 public class GlyphPageFontRenderer {
     /**
