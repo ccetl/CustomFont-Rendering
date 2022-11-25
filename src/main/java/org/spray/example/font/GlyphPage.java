@@ -31,211 +31,209 @@ import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.client.util.math.MatrixStack;
 
 public class GlyphPage {
-	
-	private int imgSize;
-	private int maxFontHeight = -1;
-	private Font font;
-	private boolean antiAliasing;
-	private boolean fractionalMetrics;
-	private HashMap<Character, Glyph> glyphCharacterMap = new HashMap<>();
 
-	private BufferedImage bufferedImage;
-	private AbstractTexture loadedTexture;
+    private int imgSize;
+    private int maxFontHeight = -1;
+    private final Font font;
+    private final boolean antiAliasing;
+    private final boolean fractionalMetrics;
+    private final HashMap<Character, Glyph> glyphCharacterMap = new HashMap<>();
 
-	public GlyphPage(Font font, boolean antiAliasing, boolean fractionalMetrics) {
-		this.font = font;
-		this.antiAliasing = antiAliasing;
-		this.fractionalMetrics = fractionalMetrics;
-	}
+    private BufferedImage bufferedImage;
+    private AbstractTexture loadedTexture;
 
-	public void generateGlyphPage(char[] chars) {
-		// Calculate glyphPageSize
-		double maxWidth = -1;
-		double maxHeight = -1;
+    public GlyphPage(Font font, boolean antiAliasing, boolean fractionalMetrics) {
+        this.font = font;
+        this.antiAliasing = antiAliasing;
+        this.fractionalMetrics = fractionalMetrics;
+    }
 
-		AffineTransform affineTransform = new AffineTransform();
-		FontRenderContext fontRenderContext = new FontRenderContext(affineTransform, antiAliasing, fractionalMetrics);
+    public void generateGlyphPage(char[] chars) {
+        // Calculate glyphPageSize
+        double maxWidth = -1;
+        double maxHeight = -1;
 
-		for (char ch : chars) {
-			Rectangle2D bounds = font.getStringBounds(Character.toString(ch), fontRenderContext);
+        AffineTransform affineTransform = new AffineTransform();
+        FontRenderContext fontRenderContext = new FontRenderContext(affineTransform, antiAliasing, fractionalMetrics);
 
-			if (maxWidth < bounds.getWidth())
-				maxWidth = bounds.getWidth();
-			if (maxHeight < bounds.getHeight())
-				maxHeight = bounds.getHeight();
-		}
+        for (char ch : chars) {
+            Rectangle2D bounds = font.getStringBounds(Character.toString(ch), fontRenderContext);
 
-		// Leave some additional space
+            if (maxWidth < bounds.getWidth())
+                maxWidth = bounds.getWidth();
+            if (maxHeight < bounds.getHeight())
+                maxHeight = bounds.getHeight();
+        }
 
-		maxWidth += 2;
-		maxHeight += 2;
+        // Leave some additional space
 
-		imgSize = (int) Math.ceil(Math.max(Math.ceil(Math.sqrt(maxWidth * maxWidth * chars.length) / maxWidth),
-				Math.ceil(Math.sqrt(maxHeight * maxHeight * chars.length) / maxHeight)) * Math.max(maxWidth, maxHeight))
-				+ 1;
+        maxWidth += 2;
+        maxHeight += 2;
 
-		bufferedImage = new BufferedImage(imgSize, imgSize, BufferedImage.TYPE_INT_ARGB);
+        imgSize = (int) Math.ceil(Math.max(Math.ceil(Math.sqrt(maxWidth * maxWidth * chars.length) / maxWidth),
+                Math.ceil(Math.sqrt(maxHeight * maxHeight * chars.length) / maxHeight)) * Math.max(maxWidth, maxHeight))
+                + 1;
 
-		Graphics2D g = bufferedImage.createGraphics();
+        bufferedImage = new BufferedImage(imgSize, imgSize, BufferedImage.TYPE_INT_ARGB);
 
-		g.setFont(font);
-		// Set Color to Transparent
-		g.setColor(new Color(255, 255, 255, 0));
-		// Set the image background to transparent
-		g.fillRect(0, 0, imgSize, imgSize);
+        Graphics2D g = bufferedImage.createGraphics();
 
-		g.setColor(Color.white);
+        g.setFont(font);
+        // Set Color to Transparent
+        g.setColor(new Color(255, 255, 255, 0));
+        // Set the image background to transparent
+        g.fillRect(0, 0, imgSize, imgSize);
 
-		g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS,
-				fractionalMetrics ? RenderingHints.VALUE_FRACTIONALMETRICS_ON
-						: RenderingHints.VALUE_FRACTIONALMETRICS_OFF);
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-				antiAliasing ? RenderingHints.VALUE_ANTIALIAS_OFF : RenderingHints.VALUE_ANTIALIAS_ON);
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-				antiAliasing ? RenderingHints.VALUE_TEXT_ANTIALIAS_ON : RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+        g.setColor(Color.white);
 
-		FontMetrics fontMetrics = g.getFontMetrics();
+        g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS,
+                fractionalMetrics ? RenderingHints.VALUE_FRACTIONALMETRICS_ON
+                        : RenderingHints.VALUE_FRACTIONALMETRICS_OFF);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                antiAliasing ? RenderingHints.VALUE_ANTIALIAS_OFF : RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                antiAliasing ? RenderingHints.VALUE_TEXT_ANTIALIAS_ON : RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 
-		int currentCharHeight = 0;
-		int posX = 0;
-		int posY = 1;
+        FontMetrics fontMetrics = g.getFontMetrics();
 
-		for (char ch : chars) {
-			Glyph glyph = new Glyph();
+        int currentCharHeight = 0;
+        int posX = 0;
+        int posY = 1;
 
-			Rectangle2D bounds = fontMetrics.getStringBounds(Character.toString(ch), g);
+        for (char ch : chars) {
+            Glyph glyph = new Glyph();
 
-			glyph.width = bounds.getBounds().width + 8; // Leave some additional space
-			glyph.height = bounds.getBounds().height;
+            Rectangle2D bounds = fontMetrics.getStringBounds(Character.toString(ch), g);
 
-			if (posX + glyph.width >= imgSize) {
-				posX = 0;
-				posY += currentCharHeight;
-				currentCharHeight = 0;
-			}
+            glyph.width = bounds.getBounds().width + 8; // Leave some additional space
+            glyph.height = bounds.getBounds().height;
 
-			glyph.x = posX;
-			glyph.y = posY;
+            if (posX + glyph.width >= imgSize) {
+                posX = 0;
+                posY += currentCharHeight;
+                currentCharHeight = 0;
+            }
 
-			if (glyph.height > maxFontHeight)
-				maxFontHeight = glyph.height;
+            glyph.x = posX;
+            glyph.y = posY;
 
-			if (glyph.height > currentCharHeight)
-				currentCharHeight = glyph.height;
+            if (glyph.height > maxFontHeight)
+                maxFontHeight = glyph.height;
 
-			g.drawString(Character.toString(ch), posX + 2, posY + fontMetrics.getAscent());
+            if (glyph.height > currentCharHeight)
+                currentCharHeight = glyph.height;
 
-			posX += glyph.width;
+            g.drawString(Character.toString(ch), posX + 2, posY + fontMetrics.getAscent());
 
-			glyphCharacterMap.put(ch, glyph);
+            posX += glyph.width;
 
-		}
-	}
+            glyphCharacterMap.put(ch, glyph);
 
-	public void setupTexture() {
-		try {
-			// Converting to ByteBuffer
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ImageIO.write(bufferedImage, "png", baos);
-			byte[] bytes = baos.toByteArray();
+        }
+    }
 
-			ByteBuffer data = BufferUtils.createByteBuffer(bytes.length).put(bytes);
-			data.flip();
-			loadedTexture = new NativeImageBackedTexture(NativeImage.read(data));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+    public void setupTexture() {
+        try {
+            // Converting to ByteBuffer
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(bufferedImage, "png", baos);
+            byte[] bytes = baos.toByteArray();
 
-	public void bindTexture() {
-		RenderSystem.setShaderTexture(0, loadedTexture.getGlId());
-	}
+            ByteBuffer data = BufferUtils.createByteBuffer(bytes.length).put(bytes);
+            data.flip();
+            loadedTexture = new NativeImageBackedTexture(NativeImage.read(data));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-	public void unbindTexture() {
-		RenderSystem.setShaderTexture(0, 0);
-	}
+    public void bindTexture() {
+        RenderSystem.setShaderTexture(0, loadedTexture.getGlId());
+    }
 
-	public float drawChar(MatrixStack stack, char ch, float x, float y, float red, float blue, float green, float alpha) {
-		Glyph glyph = glyphCharacterMap.get(ch);
+    public void unbindTexture() {
+        RenderSystem.setShaderTexture(0, 0);
+    }
 
-		if (glyph == null)
-			return 0;
+    public float drawChar(MatrixStack stack, char ch, float x, float y, float red, float blue, float green, float alpha) {
+        Glyph glyph = glyphCharacterMap.get(ch);
 
-		float pageX = glyph.x / (float) imgSize;
-		float pageY = glyph.y / (float) imgSize;
+        if (glyph == null)
+            return 0;
 
-		float pageWidth = glyph.width / (float) imgSize;
-		float pageHeight = glyph.height / (float) imgSize;
+        float pageX = glyph.x / (float) imgSize;
+        float pageY = glyph.y / (float) imgSize;
 
-		float width = glyph.width;
-		float height = glyph.height;
+        float pageWidth = glyph.width / (float) imgSize;
+        float pageHeight = glyph.height / (float) imgSize;
 
-		BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
+        float width = glyph.width;
+        float height = glyph.height;
 
-		RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
-		bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE);
+        BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
 
-		bufferBuilder.vertex(stack.peek().getModel(), x, y + height, 0).color(red, green, blue, alpha)
-				.texture(pageX, pageY + pageHeight).next();
-		bufferBuilder.vertex(stack.peek().getModel(), x + width, y + height, 0).color(red, green, blue, alpha)
-				.texture(pageX + pageWidth, pageY + pageHeight).next();
-		bufferBuilder.vertex(stack.peek().getModel(), x + width, y, 0).color(red, green, blue, alpha)
-				.texture(pageX + pageWidth, pageY).next();
-		bufferBuilder.vertex(stack.peek().getModel(), x, y, 0).color(red, green, blue, alpha).texture(pageX, pageY)
-				.next();
-		bufferBuilder.end();
+        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
+        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE);
 
-		BufferRenderer.draw(bufferBuilder);
+        bufferBuilder.vertex(stack.peek().getPositionMatrix(), x, y + height, 0).color(red, green, blue, alpha)
+                .texture(pageX, pageY + pageHeight).next();
+        bufferBuilder.vertex(stack.peek().getPositionMatrix(), x + width, y + height, 0).color(red, green, blue, alpha)
+                .texture(pageX + pageWidth, pageY + pageHeight).next();
+        bufferBuilder.vertex(stack.peek().getPositionMatrix(), x + width, y, 0).color(red, green, blue, alpha)
+                .texture(pageX + pageWidth, pageY).next();
+        bufferBuilder.vertex(stack.peek().getPositionMatrix(), x, y, 0).color(red, green, blue, alpha).texture(pageX, pageY)
+                .next();
+        BufferRenderer.drawWithShader(bufferBuilder.end());
 
-		return width - 8;
-	}
+        return width - 8;
+    }
 
-	public float getWidth(char ch) {
-		return glyphCharacterMap.get(ch).width;
-	}
+    public float getWidth(char ch) {
+        return glyphCharacterMap.get(ch).width;
+    }
 
-	public int getMaxFontHeight() {
-		return maxFontHeight;
-	}
+    public int getMaxFontHeight() {
+        return maxFontHeight;
+    }
 
-	public boolean isAntiAliasingEnabled() {
-		return antiAliasing;
-	}
+    public boolean isAntiAliasingEnabled() {
+        return antiAliasing;
+    }
 
-	public boolean isFractionalMetricsEnabled() {
-		return fractionalMetrics;
-	}
+    public boolean isFractionalMetricsEnabled() {
+        return fractionalMetrics;
+    }
 
-	static class Glyph {
-		private int x;
-		private int y;
-		private int width;
-		private int height;
+    static class Glyph {
+        private int x;
+        private int y;
+        private int width;
+        private int height;
 
-		Glyph(int x, int y, int width, int height) {
-			this.x = x;
-			this.y = y;
-			this.width = width;
-			this.height = height;
-		}
+        Glyph(int x, int y, int width, int height) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+        }
 
-		Glyph() {
-		}
+        Glyph() {
+        }
 
-		public int getX() {
-			return x;
-		}
+        public int getX() {
+            return x;
+        }
 
-		public int getY() {
-			return y;
-		}
+        public int getY() {
+            return y;
+        }
 
-		public int getWidth() {
-			return width;
-		}
+        public int getWidth() {
+            return width;
+        }
 
-		public int getHeight() {
-			return height;
-		}
-	}
+        public int getHeight() {
+            return height;
+        }
+    }
 }
