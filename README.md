@@ -1,6 +1,6 @@
-# Custom Font for Minecraft 1.17+
+# Custom Font for Minecraft 1.19+
 
-This is just a port of the old Font-Rendering for the new version (1.17+)
+This is just a port of the old Font-Rendering for the new version (1.19+)
 
 Author: [superblaubeere27](https://github.com/superblaubeere27)
 
